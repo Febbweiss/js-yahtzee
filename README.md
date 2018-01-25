@@ -10,7 +10,7 @@ Each player can launch three times the dice to have a combinaison. After each la
 
 When both grids are completed, their scores are added and the player with the higher score wins. If the upper grid has a score higher than 63 points, the player wins a bonus of 35 points.
 
-A live demo is avalaible [here](http://www.viadeo-playground.com/yahtzee/index)
+A live demo is avalaible [here](https://febbweiss.github.io/games/yahtzee/)
 
 Credits :
 ---------
