@@ -18,11 +18,15 @@ var INCOMPLETE_STRAIGHT_MASK2 = (1 << 1) + (1 << 2) + (1 << 3);
 var INCOMPLETE_STRAIGHT_MASK3 = (1 << 2) + (1 << 3) + (1 << 4);
 var INCOMPLETE_STRAIGHT_MASK4 = (1 << 3) + (1 << 4) + (1 << 5);
 
+
+/*
+ * Create the Yahtzee object
+ */
 Yahtzee = {
 		
 		launch : 0,
 		dices : [],
-		combinaisons : [],
+		Combinations : [],
 		pair : false,
 		doublePair : false,
 		three_of_a_kind : false,
@@ -35,9 +39,13 @@ Yahtzee = {
 
 		scoreUp : 0,
 		scoreDown: 0,
-		keptCombinaisons: [],
+		keptCombinations: [],
 		
-		clear: function(all) {
+		/*
+		 * Reset all values to defaults
+		 */
+		clear: function(all) 
+		{
 			if( all )
 				Yahtzee.launch = 0;
 			
@@ -52,42 +60,60 @@ Yahtzee = {
 			Yahtzee.straight = 0;
 			
 			if( all )
-				for( var i = 0; i < 5; i++ ) {
+				for( var i = 0; i < 5; i++ ) 
+				{
 					Yahtzee.dices[i] = 0;
 					$("#dice" + (i+1)).removeClass().addClass("dice").addClass("empty");
 				}
 			
-			for( var i = 0; i < 6; i++ ) {
-				Yahtzee.combinaisons[i] = 0;
+			for( var i = 0; i < 6; i++ ) 
+			{
+				Yahtzee.Combinations[i] = 0;
 			}
 			
-			$(".possibility").each(function(incr, elt) {
+			$(".possibility").each(function(incr, elt) 
+			{
 				$(elt).removeClass("possibility");
 				$(elt).empty();
 			});
 			
-			$(".keep").each(function(incr, elt) {
+			$(".keep").each(function(incr, elt) 
+			{
 				$(elt).attr('style', 'visibility:hidden;');
-			})
-			$(".trash").each(function(incr, elt) {
+			});
+			
+			$(".trash").each(function(incr, elt) 
+			{
 				$(elt).attr('style', 'visibility:hidden;');
-			})
+			});
 		},
 		
-		shuffle: function() {
+		/*
+		 * Provide random dice rolls
+		 */
+		shuffle: function() 
+		{
 			if($("#launchBtn").hasClass("disabled") )
+			{
 				return false;
+			}
 			
 			if( Yahtzee.launch == 3 )
+			{
 				Yahtzee.clear(true);
+			}
 			else
+			{
 				Yahtzee.clear(false);
+			}
 			
 			Yahtzee.launch++;
 			
-			for( var i = 0; i < 5; i++ ) {
+			for( var i = 0; i < 5; i++ ) 
+			{
 				var html = $("#dice" + (i+1));
-				if( !html.hasClass("selected") ) {
+				if( !html.hasClass("selected") ) 
+				{
 					var value = Math.round(5 * Math.random());
 					Yahtzee.dices[i] = value;
 					html.removeClass().addClass("dice").addClass("face" + (value + 1));
@@ -96,22 +122,37 @@ Yahtzee = {
 			
 			$("#launch").html(Yahtzee.launch);
 			if( Yahtzee.launch == 3 )
+			{
 				$("#launchBtn").addClass("disabled");
+			}
 		},
 		
-		findCombinaisons: function() {
-			for( var i = 0; i < 5; i++) {
-				Yahtzee.combinaisons[Yahtzee.dices[i]]++;
+		
+		/*
+		 * Find valid score combinations in current dice
+		 */
+		findCombinations: function() 
+		{
+			for( var i = 0; i < 5; i++) 
+			{
+				Yahtzee.Combinations[Yahtzee.dices[i]]++;
 				Yahtzee.straight = Yahtzee.straight | (1 << Yahtzee.dices[i]);
 			}
 			
-			for( var i = 0; i < 6; i++ ) {
-				var value = Yahtzee.combinaisons[i];
-				switch( value ) {
+			for( var i = 0; i < 6; i++ ) 
+			{
+				var value = Yahtzee.Combinations[i];
+				switch( value ) 
+				{
 				case 2:
 					if( Yahtzee.pair )
+					
 						Yahtzee.doublePair = true;
-					Yahtzee.pair = true;
+								
+						Yahtzee.pair = true;
+					
+					
+					
 					break;
 				case 5:
 					Yahtzee.yahtzee = true;
@@ -126,57 +167,93 @@ Yahtzee = {
 			
 			Yahtzee.full = Yahtzee.pair && Yahtzee.three_of_a_kind && !Yahtzee.doublePair;
 			
-			if( (Yahtzee.straight & LARGE_STRAIGHT_MASK1) == LARGE_STRAIGHT_MASK1 ) {
+			if( (Yahtzee.straight & LARGE_STRAIGHT_MASK1) == LARGE_STRAIGHT_MASK1 ) 
+			{
 				Yahtzee.large_straight = true;		
 				Yahtzee.small_straight = true;		
-			} else if( (Yahtzee.straight & LARGE_STRAIGHT_MASK2) == LARGE_STRAIGHT_MASK2 ) {
+			} else if( (Yahtzee.straight & LARGE_STRAIGHT_MASK2) == LARGE_STRAIGHT_MASK2 ) 
+			{
 				Yahtzee.large_straight = true;
 				Yahtzee.small_straight = true;
-			} else if( (Yahtzee.straight & SMALL_STRAIGHT_MASK1) == SMALL_STRAIGHT_MASK1 ) {
+			} else if( (Yahtzee.straight & SMALL_STRAIGHT_MASK1) == SMALL_STRAIGHT_MASK1 ) 
+			{
 				Yahtzee.small_straight = true;		
-			} else if( (Yahtzee.straight & SMALL_STRAIGHT_MASK2) == SMALL_STRAIGHT_MASK2  ) {
+			} else if( (Yahtzee.straight & SMALL_STRAIGHT_MASK2) == SMALL_STRAIGHT_MASK2  ) 
+			{				
 				Yahtzee.small_straight = true;
-			} else if( (Yahtzee.straight & SMALL_STRAIGHT_MASK3) == SMALL_STRAIGHT_MASK3  ) {
+			} else if( (Yahtzee.straight & SMALL_STRAIGHT_MASK3) == SMALL_STRAIGHT_MASK3  ) 
+			{
 				Yahtzee.small_straight = true;		
 			}
 			
-			if( Yahtzee.three_of_a_kind && Yahtzee.keptCombinaisons.indexOf("threeOfAKind") == -1 )
+			if( Yahtzee.three_of_a_kind && Yahtzee.keptCombinations.indexOf("threeOfAKind") == -1 )
+			{
 				$("#threeOfAKindKeep").attr('style', 'visibility:visible;');
-			if( Yahtzee.four_of_a_kind && Yahtzee.keptCombinaisons.indexOf("fourOfAKind") == -1 )
+			}
+			if( Yahtzee.four_of_a_kind && Yahtzee.keptCombinations.indexOf("fourOfAKind") == -1 )
+			{
 				$("#fourOfAKindKeep").attr('style', 'visibility:visible;');
-			if( Yahtzee.full && Yahtzee.keptCombinaisons.indexOf("full") == -1 )
+			}
+			if( Yahtzee.full && Yahtzee.keptCombinations.indexOf("full") == -1 )
+			{
 				$("#fullKeep").attr('style', 'visibility:visible;');
-			if( Yahtzee.yahtzee && Yahtzee.keptCombinaisons.indexOf("yahtzee") == -1 )
+			}
+			if( Yahtzee.yahtzee && Yahtzee.keptCombinations.indexOf("yahtzee") == -1 )
+			{
 				$("#yahtzeeKeep").attr('style', 'visibility:visible;');
-			if( Yahtzee.small_straight && Yahtzee.keptCombinaisons.indexOf("smallStraight") == -1 )
+			}
+			if( Yahtzee.small_straight && Yahtzee.keptCombinations.indexOf("smallStraight") == -1 )
+			{
 				$("#smallStraightKeep").attr('style', 'visibility:visible;');
-			if( Yahtzee.large_straight && Yahtzee.keptCombinaisons.indexOf("largeStraight") == -1 )
+			}
+			if( Yahtzee.large_straight && Yahtzee.keptCombinations.indexOf("largeStraight") == -1 )
+			{
 				$("#largeStraightKeep").attr('style', 'visibility:visible;');
+			}
 			
-			if( Yahtzee.combinaisons[0] > 0 && Yahtzee.keptCombinaisons.indexOf("one") == -1 )
+			if( Yahtzee.Combinations[0] > 0 && Yahtzee.keptCombinations.indexOf("one") == -1 )
+			{
 				$("#oneKeep").attr('style', 'visibility:visible;');
-			if( Yahtzee.combinaisons[1] > 0  && Yahtzee.keptCombinaisons.indexOf("two") == -1 )
+			}
+			if( Yahtzee.Combinations[1] > 0  && Yahtzee.keptCombinations.indexOf("two") == -1 )
+			{
 				$("#twoKeep").attr('style', 'visibility:visible;');
-			if( Yahtzee.combinaisons[2] > 0  && Yahtzee.keptCombinaisons.indexOf("three") == -1 )
+			}
+			if( Yahtzee.Combinations[2] > 0  && Yahtzee.keptCombinations.indexOf("three") == -1 )
+			{
 				$("#threeKeep").attr('style', 'visibility:visible;');
-			if( Yahtzee.combinaisons[3] > 0  && Yahtzee.keptCombinaisons.indexOf("four") == -1 )
+			}
+			if( Yahtzee.Combinations[3] > 0  && Yahtzee.keptCombinations.indexOf("four") == -1 )
+			{
 				$("#fourKeep").attr('style', 'visibility:visible;');
-			if( Yahtzee.combinaisons[4] > 0  && Yahtzee.keptCombinaisons.indexOf("five") == -1 )
+			}
+			if( Yahtzee.Combinations[4] > 0  && Yahtzee.keptCombinations.indexOf("five") == -1 )
+			{
 				$("#fiveKeep").attr('style', 'visibility:visible;');
-			if( Yahtzee.combinaisons[5] > 0  && Yahtzee.keptCombinaisons.indexOf("six") == -1 )
+			}
+			if( Yahtzee.Combinations[5] > 0  && Yahtzee.keptCombinations.indexOf("six") == -1 )
+			{
 				$("#sixKeep").attr('style', 'visibility:visible;');
+			}
 			
-			if( Yahtzee.keptCombinaisons.indexOf("luck") == -1 )
+			if( Yahtzee.keptCombinations.indexOf("luck") == -1 )
+			{
 				$("#luckKeep").attr('style', 'visibility:visible;');
+			}
 			
-			$(".trash").each(function(incr, elt){
-				var html = $(elt)
-				if( Yahtzee.keptCombinaisons.indexOf(html.attr('data-id')) == -1 )
+			$(".trash").each(function(incr, elt)
+			{
+				var html = $(elt);
+				if( Yahtzee.keptCombinations.indexOf(html.attr('data-id')) == -1 )
 					html.attr('style', 'visibility:visible;');
 			});
 		},
 		
-		findPossibilities: function() {
+		/*
+		 * Calculate probability of rolling a particular dice combination
+		 */
+		findPossibilities: function() 
+		{
 			var possibilities = {
 					"threeOfAKind" : 0,
 					"fourOfAKind" : 0,
@@ -186,12 +263,15 @@ Yahtzee = {
 					"largeStraight" : 0
 			};
 			
-			if( Yahtzee.three_of_a_kind && !Yahtzee.full) {
+			if( Yahtzee.three_of_a_kind && !Yahtzee.full) 
+			{
 				possibilities["full"] = Math.max( possibilities["full"], 17 );
 				possibilities["fourOfAKind"] = Math.max( possibilities["fourOfAKind"], 31);
 				possibilities["yahtzee"] = Math.max( possibilities["yahtzee"],  3);
 			}
-			if( Yahtzee.pair ) {
+			
+			if( Yahtzee.pair ) 
+			{
 				if( !Yahtzee.three_of_a_kind )
 					possibilities["threeOfAKind"] = Math.max( possibilities["threeOfAKind"], 42);
 				possibilities["fourOfAKind"] = Math.max( possibilities["fourOfAKind"], 7);
@@ -199,60 +279,72 @@ Yahtzee = {
 					possibilities["full"] = Math.max( possibilities["full"], 10);
 				possibilities["yahtzee"] = Math.max( possibilities["yahtzee"], 7);
 			}
-			if( Yahtzee.four_of_a_kind ) {
+			
+			if( Yahtzee.four_of_a_kind ) 
+			{
 				possibilities["yahtzee"] = Math.max( possibilities["yahtzee"], 17);
 			}
-			if( Yahtzee.doublePair ) {
+			
+			if( Yahtzee.doublePair ) 
+			{
 				possibilities["full"] = Math.max( possibilities["full"], 33);
 			}
 			if( !Yahtzee.large_straight && 
-					((Yahtzee.straight & SMALL_STRAIGHT_MASK1) == SMALL_STRAIGHT_MASK1 || (Yahtzee.straight & SMALL_STRAIGHT_MASK3) == SMALL_STRAIGHT_MASK3) ) {
+					((Yahtzee.straight & SMALL_STRAIGHT_MASK1) == SMALL_STRAIGHT_MASK1 || (Yahtzee.straight & SMALL_STRAIGHT_MASK3) == SMALL_STRAIGHT_MASK3) ) 
+			{
 				possibilities["largeStraight"] = Math.max( possibilities["largeStraight"], 17);
-			} else if( !Yahtzee.large_straight && (Yahtzee.straight & SMALL_STRAIGHT_MASK2) == SMALL_STRAIGHT_MASK2 ) {
+			} else if( !Yahtzee.large_straight && (Yahtzee.straight & SMALL_STRAIGHT_MASK2) == SMALL_STRAIGHT_MASK2 ) 
+			{
 				possibilities["largeStraight"] = Math.max( possibilities["largeStraight"], 33);
 			}
 			
-			$.each(possibilities, function(key, value) {
+			$.each(possibilities, function(key, value) 
+			{
 				var html = $("#" + key + "Probability");
 				html.empty().addClass("possibility");
-				if( value > 0 && Yahtzee.keptCombinaisons.indexOf(key) == -1 ) {
+				if( value > 0 && Yahtzee.keptCombinations.indexOf(key) == -1 ) 
+				{
 					html.append(value + "%");
 				} else
 					html.append("&nbsp;");
 			});
 		},
 		
-		keep: function(id) {
+		/*
+		 * Process user decision to keep a score value
+		 */
+		keep: function(id) 
+		{
 			var score = 0;
 			switch(id) {
 			case "one" :
-				score = Yahtzee.combinaisons[0] * 1;
+				score = Yahtzee.Combinations[0] * 1;
 				Yahtzee.scoreUp += score;
 				break;
 			case "two" :
-				score = Yahtzee.combinaisons[1] * 2;
+				score = Yahtzee.Combinations[1] * 2;
 				Yahtzee.scoreUp += score;
 				break;
 			case "three" :
-				score = Yahtzee.combinaisons[2] * 3;
+				score = Yahtzee.Combinations[2] * 3;
 				Yahtzee.scoreUp += score;
 				break;
 			case "four" :
-				score = Yahtzee.combinaisons[3] * 4;
+				score = Yahtzee.Combinations[3] * 4;
 				Yahtzee.scoreUp += score;
 				break;
 			case "five" :
-				score = Yahtzee.combinaisons[4] * 5;
+				score = Yahtzee.Combinations[4] * 5;
 				Yahtzee.scoreUp += score;
 				break;
 			case "six" :
-				score = Yahtzee.combinaisons[5] * 6;
+				score = Yahtzee.Combinations[5] * 6;
 				Yahtzee.scoreUp += score;
 				break;
 			case "threeOfAKind" :
 			case "fourOfAKind" :
 			case "luck" :
-				$.each(Yahtzee.dices, function(index, elt){score += (elt + 1)});
+				$.each(Yahtzee.dices, function(index, elt){score += (elt + 1);});
 				Yahtzee.scoreDown += score;
 				break;
 			case "full" :
@@ -274,37 +366,60 @@ Yahtzee = {
 			}
 			
 			$("#" + id + "Score").html(score);
-			
-			Yahtzee.keptCombinaisons.push(id);
+			$("#topScore").html(Yahtzee.scoreUp);
+			$("#bottomScore").html(Yahtzee.scoreDown);
+			Yahtzee.keptCombinations.push(id);
 			Yahtzee.clear(true);
 			
-			if( Yahtzee.keptCombinaisons.length < 13 )
+			if( Yahtzee.keptCombinations.length < 13 )
 				$("#launchBtn").removeClass("disabled");
 			else
 				Yahtzee.show_game_over();
 		},
 		
-		trash : function(id) {
+		/*
+		 * Add a zero to the score value of the selected table row
+		 */
+		trash: function(id) 
+		{
 			$("#" + id + "Score").html(0).addClass('trashed');
 			$("#" + id + "Label").attr('style', 'text-decoration:line-through;');
-			Yahtzee.keptCombinaisons.push(id);
+			Yahtzee.keptCombinations.push(id);
 			Yahtzee.clear(true);
-			if( Yahtzee.keptCombinaisons.length < 13 )
+			if( Yahtzee.keptCombinations.length < 13 )
+			{
 				$("#launchBtn").removeClass("disabled");
+			}
 			else
+			{
 				Yahtzee.show_game_over();
+			}
 		},
 		
-		show_game_over: function() {
+		/*
+		 * Calculate and display the final user score
+		 */
+		show_game_over: function() 
+		{
 			$("#upperScore").append(Yahtzee.scoreUp);
-			if( Yahtzee.scoreUp > 63 ) {
+			if( Yahtzee.scoreUp > 63 ) 
+			{
 				$("#bonus").append(35);
 				Yahtzee.scoreUp += 35;
-			} else
+				$("#lowerScore").append(Yahtzee.scoreDown);
+				$("#totalScore").append(Yahtzee.scoreDown + Yahtzee.scoreUp);
+			
+				$("#scorePanel").show();
+			} 
+			else 
+			{
 				$("#bonus").append(0);
-			$("#lowerScore").append(Yahtzee.scoreDown);
-			$("#totalScore").append(Yahtzee.scoreDown + Yahtzee.upperScore);
-
-			$("#scorePanel").show();
+				$("#lowerScore").append(Yahtzee.scoreDown);
+				$("#totalScore").append(Yahtzee.scoreDown + Yahtzee.scoreUp);
+			
+				$("#scorePanel").show();
+			}
 		}
-}
+	
+		
+};
